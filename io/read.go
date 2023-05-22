@@ -13,7 +13,7 @@ import (
 var ErrorDataConversion = errors.New("error on data conversion")
 
 // Read reads an input from terminal putting her inside variable passed per reference with an optional message (return ErrorDataConversion case error).
-func Read[Type string | int | float64 | bool](variable *Type, message ...string) error {
+func Read[Type string | int | float64 | bool | any](variable *Type, message ...string) error {
 
 	var (
 		// Like consts.
@@ -21,6 +21,7 @@ func Read[Type string | int | float64 | bool](variable *Type, message ...string)
 		typeInt    = reflect.Int.String()
 		typeFloat  = reflect.Float64.String()
 		typeBool   = reflect.Bool.String()
+		typeAny    = reflect.Interface.String()
 		// Complex variables.
 		reader = bufio.NewReader(os.Stdin)
 		// Simple variables.
@@ -49,7 +50,7 @@ func Read[Type string | int | float64 | bool](variable *Type, message ...string)
 
 	// Check and assign the input inside reference variable.
 	switch reflect.TypeOf(*variable).String() {
-	case typeString:
+	case typeString, typeAny:
 		*variable, _ = any(answer).(Type)
 	case typeInt:
 		// "parsed" and "err" variable are local.
