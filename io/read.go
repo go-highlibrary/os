@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // ErrorDataConversion is a custom error for wrong input data type (in relation to variable pass per param).
@@ -42,30 +43,30 @@ func Read[Type string | int | float64 | bool | any](variable *Type, message ...s
 	}
 
 	// Get and validade input errors.
-	answer, err := reader.ReadString('\n')
+	reply, err := reader.ReadString('\n')
 	if err != nil {
 		return errors.New("error on input data")
 	}
-	answer = answer[:len(answer)-1]
+	reply = strings.TrimRight(reply, "\r\n")
 
 	// Check and assign the input inside reference variable.
 	switch reflect.TypeOf(*variable).String() {
 	case typeString, typeAny:
-		*variable, _ = any(answer).(Type)
+		*variable, _ = any(reply).(Type)
 	case typeInt:
 		// "parsed" and "err" variable are local.
-		parsed, err := strconv.ParseInt(answer, 10, 64)
+		parsed, err := strconv.ParseInt(reply, 10, 64)
 		if err != nil {
 			return fmt.Errorf("%w (%s)", ErrorDataConversion, typeInt)
 		}
 		*variable = any(int(parsed)).(Type)
 	case typeFloat:
-		if parsed, err = strconv.ParseFloat(answer, 64); err != nil {
+		if parsed, err = strconv.ParseFloat(reply, 64); err != nil {
 			return fmt.Errorf("%w (%s)", ErrorDataConversion, typeFloat)
 		}
 		*variable = parsed.(Type)
 	case typeBool:
-		if parsed, err = strconv.ParseBool(answer); err != nil {
+		if parsed, err = strconv.ParseBool(reply); err != nil {
 			return fmt.Errorf("%w (%s)", ErrorDataConversion, typeBool)
 		}
 		*variable = parsed.(Type)
